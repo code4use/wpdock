@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+   db:
+     image: mariadb
+     volumes:
+       - ./data:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: PASSWORD
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: PASSWORD
+     networks:
+       - webnet
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:php7.4
+     expose:
+       - 80
+     restart: always
+     environment:
+       VIRTUAL_HOST:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: PASSWORD
+     volumes:
+       #
+       # Copy in our PHP config for large uploads.
+       #
+       - ../php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+       #
+       # When first run, this image populates /var/www/html/ with a Wordpress install,
+       # and we want that to be exported so we have a copy of our code.
+       #
+       - ./wordpress:/var/www/html
+     networks:
+       - webnet
+       - nginx-proxy
+
+networks:
+  webnet:
+  nginx-proxy:
+    external:
+      name: nginx-proxy
+
