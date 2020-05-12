@@ -12,7 +12,8 @@ services:
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: PASSWORD
      networks:
-       - webnet
+             #- webnet
+       - nginx-proxy
 
    wordpress:
      depends_on:
@@ -37,11 +38,11 @@ services:
        #
        - ./wordpress:/var/www/html
      networks:
-       - webnet
+       #- webnet
        - nginx-proxy
 
 networks:
-  webnet:
+        #webnet:
   nginx-proxy:
     external:
       name: nginx-proxy
