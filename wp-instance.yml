@@ -1,19 +1,18 @@
-version: "3"
+version: "2.4"
 
 services:
    db:
      image: mariadb
      volumes:
        - ./data:/var/lib/mysql
-     restart: always
+     restart: unless-stopped
      environment:
        MYSQL_ROOT_PASSWORD: PASSWORD
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: PASSWORD
      networks:
-             #- webnet
-       - nginx-proxy
+       - backend
 
    wordpress:
      depends_on:
@@ -21,9 +20,12 @@ services:
      image: wordpress:php7.4
      expose:
        - 80
-     restart: always
+     restart: unless-stopped
      environment:
        VIRTUAL_HOST:
+       LETSENCRYPT_HOST:
+       LETSENCRYPT_EMAIL:
+       # HTTPS_METHOD: noredirect
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: PASSWORD
@@ -38,11 +40,11 @@ services:
        #
        - ./wordpress:/var/www/html
      networks:
-       #- webnet
+       - backend
        - nginx-proxy
 
 networks:
-        #webnet:
+  backend:
   nginx-proxy:
     external:
       name: nginx-proxy
